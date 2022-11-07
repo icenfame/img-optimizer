@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Image Optimizer</title>
+
+    <style>
+      main {
+        width: 1216px;
+        margin: 0 auto;
+      }
+    </style>
+  </head>
+
+  <body>
+    <main>
+      <h1>Canvas version</h1>
+
+      <nav>
+        <a href="/">Default</a>
+        <a href="/dom">DOM</a>
+        <a href="/canvas">Canvas</a>
+      </nav>
+    </main>
+
+    <script>
+      const IMAGE_SIZE = 300;
+      const IMAGE_MARGIN = 4;
+      const IMAGE_COUNT = 40;
+      const IMAGES_IN_ROW = 4;
+
+      let offsetX = 0;
+      let offsetY = -IMAGE_SIZE - 4;
+
+      function imgLoad(imgUrl) {
+        return new Promise((resolve) => {
+          const img = new Image();
+          img.src = imgUrl;
+
+          img.onload = () => {
+            resolve(img);
+          };
+        });
+      }
+
+      async function imgDraw(ctx) {
+        for (let i = 0; i < IMAGE_COUNT; i++) {
+          const img = await imgLoad(`assets/${i + 1}.jpg`);
+
+          const origWidth = img.naturalWidth;
+          const origHeight = img.naturalHeight;
+
+          let x, y;
+          let scaleWidth = IMAGE_SIZE;
+          let scaleHeight = IMAGE_SIZE;
+
+          if (origWidth > origHeight) {
+            x = (origWidth - origHeight) / 2;
+            y = 0;
+          } else {
+            x = 0;
+            y = (origHeight - origWidth) / 2;
+          }
+
+          if (i % 4 === 0) {
+            offsetX = 0;
+            offsetY += IMAGE_SIZE + 4;
+          } else {
+            offsetX += IMAGE_SIZE + 4;
+          }
+
+          ctx.drawImage(
+            img,
+            x,
+            y,
+            origWidth - x * 2,
+            origHeight - y * 2,
+            offsetX,
+            offsetY,
+            scaleWidth,
+            scaleHeight
+          );
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", async () => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+
+        canvas.width =
+          IMAGE_SIZE * IMAGES_IN_ROW + IMAGES_IN_ROW * IMAGE_MARGIN;
+        canvas.height =
+          IMAGE_SIZE * (IMAGE_COUNT / IMAGES_IN_ROW) +
+          (IMAGE_COUNT / IMAGES_IN_ROW - 1) * IMAGE_MARGIN;
+
+        ctx.imageSmoothingQuality = "high";
+        document.querySelector("main").appendChild(canvas);
+
+        console.time("imgDraw");
+        await imgDraw(ctx);
+        console.timeEnd("imgDraw");
+      });
+    </script>
+  </body>
+</html>

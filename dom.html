@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Image Optimizer</title>
+
+    <style>
+      img {
+        width: 300px;
+        height: 300px;
+        margin-right: 4px;
+      }
+
+      main {
+        width: 1216px;
+        margin: 0 auto;
+      }
+    </style>
+  </head>
+
+  <body>
+    <main>
+      <h1>DOM version</h1>
+
+      <nav>
+        <a href="/">Default</a>
+        <a href="/dom">DOM</a>
+        <a href="/canvas">Canvas</a>
+      </nav>
+    </main>
+
+    <script>
+      const IMAGE_SIZE = 300;
+      const IMAGE_COUNT = 40;
+
+      const main = document.querySelector("main");
+
+      function imgLoad(imgUrl) {
+        return new Promise((resolve) => {
+          const img = new Image();
+          img.src = imgUrl;
+
+          img.onload = () => {
+            resolve(img);
+          };
+        });
+      }
+
+      function toBlob(canvas) {
+        return new Promise((resolve) => {
+          canvas.toBlob((blob) => {
+            const img = document.createElement("img");
+            const url = URL.createObjectURL(blob);
+            main.appendChild(img);
+
+            img.src = url;
+            img.onload = () => {
+              URL.revokeObjectURL(url);
+              resolve();
+            };
+          });
+        });
+      }
+
+      async function imgDraw(canvas, ctx) {
+        for (let i = 0; i < IMAGE_COUNT; i++) {
+          const img = await imgLoad(`assets/${i + 1}.jpg`);
+
+          const origWidth = img.naturalWidth;
+          const origHeight = img.naturalHeight;
+
+          let x, y;
+          let scaleWidth = IMAGE_SIZE;
+          let scaleHeight = IMAGE_SIZE;
+
+          if (origWidth > origHeight) {
+            x = (origWidth - origHeight) / 2;
+            y = 0;
+          } else if (origHeight > origWidth) {
+            x = 0;
+            y = (origHeight - origWidth) / 2;
+          } else {
+            x = 0;
+            y = 0;
+          }
+
+          ctx.drawImage(
+            img,
+            x,
+            y,
+            origWidth - x * 2,
+            origHeight - y * 2,
+            0,
+            0,
+            scaleWidth,
+            scaleHeight
+          );
+          await toBlob(canvas);
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", async () => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+
+        canvas.width = IMAGE_SIZE;
+        canvas.height = IMAGE_SIZE;
+        ctx.imageSmoothingQuality = "high";
+
+        console.time("imgDraw");
+        await imgDraw(canvas, ctx);
+        console.timeEnd("imgDraw");
+      });
+    </script>
+  </body>
+</html>
