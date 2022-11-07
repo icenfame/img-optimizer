@@ -20,11 +20,20 @@
 
       <nav>
         <a href="/">Default</a>
-        <a href="./dom">DOM</a>
-        <a href="./canvas">Canvas</a>
+        <a href="/dom">DOM</a>
+        <a href="/canvas">Canvas</a>
       </nav>
     </main>
 
+    <script>
+      if (location.port === "" && location.protocol === "https:") {
+        document
+          .querySelectorAll("a")
+          .forEach(
+            (link) => (link.href = "/img-optimizer" + link.getAttribute("href"))
+          );
+      }
+    </script>
     <script>
       const IMAGE_SIZE = 300;
       const IMAGE_MARGIN = 4;

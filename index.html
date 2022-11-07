@@ -26,8 +26,8 @@
 
       <nav>
         <a href="/">Default</a>
-        <a href="./dom">DOM</a>
-        <a href="./canvas">Canvas</a>
+        <a href="/dom">DOM</a>
+        <a href="/canvas">Canvas</a>
       </nav>
 
       <img src="assets/1.jpg" />
@@ -71,5 +71,15 @@
       <img src="assets/39.jpg" />
       <img src="assets/40.jpg" />
     </main>
+
+    <script>
+      if (location.port === "" && location.protocol === "https:") {
+        document
+          .querySelectorAll("a")
+          .forEach(
+            (link) => (link.href = "/img-optimizer" + link.getAttribute("href"))
+          );
+      }
+    </script>
   </body>
 </html>
