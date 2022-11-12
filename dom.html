@@ -87,12 +87,9 @@
           if (origWidth > origHeight) {
             x = (origWidth - origHeight) / 2;
             y = 0;
-          } else if (origHeight > origWidth) {
-            x = 0;
-            y = (origHeight - origWidth) / 2;
           } else {
             x = 0;
-            y = 0;
+            y = (origHeight - origWidth) / 2;
           }
 
           ctx.drawImage(
